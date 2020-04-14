@@ -15,6 +15,7 @@ architecture Behavioral of tb_timer is
 
         port (clk: in std_logic;
               clr: in std_logic;
+              start: in std_logic;
               stop_cycles: in std_logic_vector(CYCLES_BITS-1 downto 0);
               finished: out std_logic);
     end component;
@@ -23,7 +24,7 @@ architecture Behavioral of tb_timer is
 
     signal clk : std_logic;
     signal clr : std_logic;
-
+    signal start : std_logic;
     signal stop_cycles:  std_logic_vector(CYCLES_BITS-1 downto 0);
     signal finished: std_logic;
 
@@ -44,7 +45,7 @@ begin
         port map (
             clk => clk,
             clr => clr,
-
+            start => start,
             stop_cycles => stop_cycles,
             finished => finished);
 
