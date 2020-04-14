@@ -4,36 +4,51 @@ use ieee.numeric_std.all;
 
 
 entity timer is
-   generic (CYCLES_BITS: positive := 8);
+    generic (CYCLES_BITS: positive := 8);
 
-   port (clk: in std_logic;
-         clr: in std_logic;
-         stop_cycles: in std_logic_vector(CYCLES_BITS-1 downto 0);
-         finished: out std_logic);
+    port (clk: in std_logic;
+          clr: in std_logic;
+          start: in std_logic;
+          stop_cycles: in std_logic_vector(CYCLES_BITS-1 downto 0);
+          finished: out std_logic);
 end timer;
 
 architecture Behavioral of timer is
+    type state_type is (idle, op, done);
+    signal state, next_state: state_type;
+    signal counter, next_counter: unsigned (CYCLES_BITS downto 0);
 begin
 
-    
-    config : process(clk) is
-    
-        variable counter : unsigned (CYCLES_BITS downto 0) := (others => '0');
-
+    sync: process(clk) is
     begin
-        if(rising_edge(clk)) then
-            
-
-            if(clr='1') then
-                counter := (others => '0');
-            else counter := counter +1;
-            end if;
-        
-            if(counter = unsigned(stop_cycles) +1) then
-                finished <= '1';
-            else finished <= '0';        
-            end if;
-
+        if(clr='1') then
+            state <= idle;
+            counter <= (others => '0');
+        elsif(rising_edge(clk)) then
+            state <= next_state;
+            counter <= next_counter;
         end if;
-    end process config;
+    end process sync;
+
+    comb: process (state, counter, start) is
+    begin
+        finished <= '0';
+        next_counter <= (others => '0');
+        next_state <= state;
+
+        case state is
+            when idle =>
+                if start = '1' then
+                    next_state <= op;
+                end if;
+            when op =>
+                next_counter <= counter + 1;
+                if(counter = unsigned(stop_cycles)) then
+                    finished <= '1';
+                    next_state <= done;
+                end if;
+            when done =>
+                next_state <= idle;
+        end case;
+    end process comb;
 end Behavioral;

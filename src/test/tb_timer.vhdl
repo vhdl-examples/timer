@@ -10,17 +10,17 @@ entity tb_timer is
 end tb_timer;
 
 architecture Behavioral of tb_timer is
-   component timer is
-   generic (CYCLES_BITS: positive );
+    component timer is
+        generic (CYCLES_BITS: positive );
 
-   port (clk: in std_logic;
-         clr: in std_logic;
-         stop_cycles: in std_logic_vector(CYCLES_BITS-1 downto 0);
-         finished: out std_logic);
-end component;
+        port (clk: in std_logic;
+              clr: in std_logic;
+              stop_cycles: in std_logic_vector(CYCLES_BITS-1 downto 0);
+              finished: out std_logic);
+    end component;
 
     constant CYCLES_BITS: positive := 3;
-    
+
     signal clk : std_logic;
     signal clr : std_logic;
 
@@ -53,10 +53,12 @@ begin
         test_runner_setup(runner, runner_cfg);
         stop_cycles  <= "100";
         clr <= '1';
+        start <= '0';
 
         wait until falling_edge(clk);
         assert finished = '0' report "timer should not be ended";
         clr <= '0';
+        start <= '1';
 
         wait until falling_edge(clk);
         assert finished = '0' report "timer should not be ended";
@@ -72,10 +74,10 @@ begin
 
         wait until falling_edge(clk);
         assert finished = '0' report "timer should not be ended";
-        
+
         wait until falling_edge(clk);
         assert finished = '1' report "timer should be ended";
-        
+
         wait until falling_edge(clk);
         clr <= '1';
         stop_cycles  <= "001";
@@ -91,7 +93,7 @@ begin
 
         wait until falling_edge(clk);
         assert finished = '1' report "timer should be ended";
-        
+
         test_runner_cleanup(runner); -- Simulation ends here
     end process;
 
